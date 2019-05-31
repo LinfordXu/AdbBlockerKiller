@@ -1,12 +1,15 @@
 package com.sina.linford.uiautomationassistant.basicInfor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 // Adb block infor
 // permission infor
 // sinanews infor
 public class BasicMinitorViewInfoFactory {
+
+    public static List<String> supportBrandList = new ArrayList<String>(Arrays.asList("samsung", "xiaomi", "huawei"));
 
 
     public static List<BasicMinitorViewInfo> createViewInfos(String brand) {

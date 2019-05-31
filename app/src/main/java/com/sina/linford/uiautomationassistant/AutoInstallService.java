@@ -30,10 +30,13 @@ public class AutoInstallService extends AccessibilityService {
     private String tag = "Linford";
     //    private BaseAction action = ActionFactory.getAction(Build.BRAND, this);
     private List<BasicMinitorViewInfo> viewInfos = BasicMinitorViewInfoFactory.createViewInfos(Build.BRAND);
+    private Boolean isSupport = BasicMinitorViewInfoFactory.supportBrandList.contains(Build.BRAND);
 
 
     @Override
     protected void onServiceConnected() {
+        if (!isSupport) return;
+
         Log.d(tag, "connected");
 
         List<String> packageNames = new ArrayList<>();
@@ -47,7 +50,7 @@ public class AutoInstallService extends AccessibilityService {
         serviceInfo.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;
         serviceInfo.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
         serviceInfo.notificationTimeout = 100;
-        serviceInfo.flags=AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
+        serviceInfo.flags = AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
         String[] packages = new String[packageNames.size()];
         packageNames.toArray(packages);
         serviceInfo.packageNames = packages;
@@ -57,6 +60,8 @@ public class AutoInstallService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
+        if (!isSupport) return;
+
         Log.d(tag, event.toString());
         // get the event type
         int eventType = event.getEventType();
