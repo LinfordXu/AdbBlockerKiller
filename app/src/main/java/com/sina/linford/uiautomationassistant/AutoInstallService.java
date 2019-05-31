@@ -7,6 +7,12 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.ThemedSpinnerAdapter;
+
+import com.sina.linford.uiautomationassistant.actions.ActionFactory;
+import com.sina.linford.uiautomationassistant.actions.BaseAction;
+import com.sina.linford.uiautomationassistant.basicInfor.BasicMinitorViewInfo;
+import com.sina.linford.uiautomationassistant.basicInfor.BasicMinitorViewInfoFactory;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -19,42 +25,64 @@ import java.util.List;
  */
 
 public class AutoInstallService extends AccessibilityService {
-    private String packageName;
-    private String viewtype;
-    private String buttonId;
-    public static HashMap<String, List<String>> modelPackageDic = new HashMap<String, List<String>>();
-    public static HashMap<String, String> modelViewtypeDic = new HashMap<>();
 
     private String tag = "Linford";
+    //    private BaseAction action = ActionFactory.getAction(Build.BRAND, this);
+    private List<BasicMinitorViewInfo> viewInfos = BasicMinitorViewInfoFactory.createViewInfos(Build.BRAND);
+
 
     @Override
     protected void onServiceConnected() {
+        Log.d(tag, "connected");
 
-        getModelPackageModel();
-
-        // set the package which the service shold be monitored
-        this.setPackageandViewtypebyPhoneModel();
+        List<String> packageNames = new ArrayList<>();
+        for (BasicMinitorViewInfo info : viewInfos) {
+            if (info != null && info.getPackageName() != null && !info.getPackageName().isEmpty() && !packageNames.contains(info.getPackageName())) {
+                packageNames.add(info.getPackageName());
+            }
+        }
 
         AccessibilityServiceInfo serviceInfo = new AccessibilityServiceInfo();
         serviceInfo.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;
         serviceInfo.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
-        serviceInfo.packageNames = new String[]{packageName};
         serviceInfo.notificationTimeout = 100;
+        String[] packages = new String[packageNames.size()];
+        packageNames.toArray(packages);
+        serviceInfo.packageNames = packages;
+
         setServiceInfo(serviceInfo);
     }
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-// get the event type
+        Log.d(tag, event.toString());
+        // get the event type
         int eventType = event.getEventType();
         switch (eventType) {
             case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
-                Log.d(tag, event.getClassName().toString());
-                if (event.getClassName().toString().equals(viewtype)) {
-                    AccessibilityNodeInfo myNode = getRootInActiveWindow();
-                    Log.d(tag,"myNode name"+myNode.getClassName().toString());
-                    AccessibilityNodeInfo continue_install_btn = myNode.findAccessibilityNodeInfosByViewId(buttonId).get(0);
-                    continue_install_btn.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+            case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
+
+                AccessibilityNodeInfo currentActiveWindows = getRootInActiveWindow();
+                if (currentActiveWindows == null) break;
+
+                // event.getClassName().toString()拿到的是发出事件的类，不是view对应的class
+//                String viewName = event.getClassName().toString();
+                String viewName = currentActiveWindows.getClassName().toString();
+
+                Log.d(tag, viewName);
+
+                for (BasicMinitorViewInfo viewInfo : viewInfos) {
+                    if (viewName.equals(viewInfo.getRootViewClass()) && event.getPackageName().equals(viewInfo.getPackageName())) {
+
+                        Log.d(tag, "myNode name" + currentActiveWindows.getClassName().toString());
+                        List<AccessibilityNodeInfo> allowBtns = currentActiveWindows.findAccessibilityNodeInfosByViewId(viewInfo.getTargetViewId());
+                        if (allowBtns.size() > 0) {
+                            Log.d(tag, "click");
+                            allowBtns.get(0).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                            // 如果已经匹配当前Viewinfo，则跳出，不再去尝试其它Viewinfo
+                            break;
+                        }
+                    }
                 }
                 break;
             default:
@@ -67,24 +95,12 @@ public class AutoInstallService extends AccessibilityService {
 
     }
 
-    private void setPackageandViewtypebyPhoneModel() {
-        String phoneModel = Build.MODEL;
-        this.packageName = modelPackageDic.get(phoneModel).get(0);
-        this.viewtype = modelPackageDic.get(phoneModel).get(1);
-        this.buttonId = modelPackageDic.get(phoneModel).get(2);
+
+    @Override
+    public void onDestroy() {
+        Log.d(tag, "destory");
+        super.onDestroy();
     }
 
-    public void getModelPackageModel() {
-        List<String> packageViewtypeButton= new ArrayList<>(Arrays.asList("com.miui.securitycenter","android.widget.FrameLayout","android:id/button2"));
-        modelPackageDic.put("MIX", packageViewtypeButton);
-        packageViewtypeButton.clear();
-        packageViewtypeButton= new ArrayList<>(Arrays.asList("android","android.widget.FrameLayout","vivo:id/vivo_adb_install_ok_button"));
-        modelPackageDic.put("vivo Xplay6", packageViewtypeButton);
-        packageViewtypeButton=null;
-    }
-//
-//    public void getModelViewType() {
-//        modelViewtypeDic.put("MIX",);
-//        modelViewtypeDic.put("vivo Xplay6", "android.widget.FrameLayout");
-//    }
+
 }

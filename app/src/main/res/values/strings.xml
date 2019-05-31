@@ -1,5 +1,6 @@
 <resources>
-    <string name="app_name">UIAutomationAssistant</string>
+    <string name="app_name">UI Automation Assistant</string>
     <string name="app_introduction">此App用来在带有Adb Install Blocker的手机（主要为国产手机，如小米，Vivo，魅族）上实现Adb install 自动安装的辅助工具。\n需要用户手动开启，开启方法为进入设置->(更多设置)->辅助功能（无障碍）->服务->UIAutomationAssistant,点击开启此服务。\n开启后通过Abd安装时候服务会自动点击允许安装,从而实现Adb Auto Install。</string>
     <string name="introduction">使用说明</string>
+    <string name="des">处理自动化测试过程安装弹窗、申请权限弹窗，实现自动点击安装和允许。</string>
 </resources>
