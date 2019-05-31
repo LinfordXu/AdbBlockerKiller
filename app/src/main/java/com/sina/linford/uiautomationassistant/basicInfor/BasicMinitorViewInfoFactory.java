@@ -23,11 +23,11 @@ public class BasicMinitorViewInfoFactory {
     }
 
 
-    private static BasicMinitorViewInfo generateSinaNewsInfo() {
+    public static BasicMinitorViewInfo generateSinaNewsInfo() {
         return new BasicMinitorViewInfo("com.sina.news", "android.widget.FrameLayout", "com.sina.news:id/btn_agree");
     }
 
-    private static List<BasicMinitorViewInfo> generateSumsungInfo() {
+    public static List<BasicMinitorViewInfo> generateSumsungInfo() {
         List<BasicMinitorViewInfo> infos = new ArrayList<>();
 
         // 权限弹窗
@@ -38,7 +38,7 @@ public class BasicMinitorViewInfoFactory {
         return infos;
     }
 
-    private static List<BasicMinitorViewInfo> generateXiaomiInfo() {
+    public static List<BasicMinitorViewInfo> generateXiaomiInfo() {
         List<BasicMinitorViewInfo> infos = new ArrayList<>();
         infos.add(new BasicMinitorViewInfo("com.miui.securitycenter", "android.widget.FrameLayout", "android:id/button2"));
         infos.add(new BasicMinitorViewInfo("com.lbe.security.miui", "android.widget.FrameLayout", "android:id/button1"));
@@ -47,7 +47,7 @@ public class BasicMinitorViewInfoFactory {
     }
 
     // 华为通过adb安装阻拦更多，所以adb block killer 有两层
-    private static List<BasicMinitorViewInfo> generateHuaweiInfo() {
+    public static List<BasicMinitorViewInfo> generateHuaweiInfo() {
         List<BasicMinitorViewInfo> infos = new ArrayList<>();
         // adb blocker 弹窗
         infos.add(new BasicMinitorViewInfo("com.android.packageinstaller", "android.widget.FrameLayout", "android:id/button1"));

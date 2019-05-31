@@ -7,6 +7,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityWindowInfo;
 import android.widget.ThemedSpinnerAdapter;
 
 import com.sina.linford.uiautomationassistant.actions.ActionFactory;
@@ -46,6 +47,7 @@ public class AutoInstallService extends AccessibilityService {
         serviceInfo.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;
         serviceInfo.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
         serviceInfo.notificationTimeout = 100;
+        serviceInfo.flags=AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
         String[] packages = new String[packageNames.size()];
         packageNames.toArray(packages);
         serviceInfo.packageNames = packages;
@@ -61,12 +63,16 @@ public class AutoInstallService extends AccessibilityService {
         switch (eventType) {
             case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
+            case AccessibilityEvent.TYPE_ANNOUNCEMENT:
+//            case AccessibilityEvent.TYPE_VIEW_CLICKED:
+
+                List<AccessibilityWindowInfo> currentWindows = getWindows();
 
                 AccessibilityNodeInfo currentActiveWindows = getRootInActiveWindow();
                 if (currentActiveWindows == null) break;
 
                 // event.getClassName().toString()拿到的是发出事件的类，不是view对应的class
-//                String viewName = event.getClassName().toString();
+                // String viewName = event.getClassName().toString();
                 String viewName = currentActiveWindows.getClassName().toString();
 
                 Log.d(tag, viewName);
